@@ -100,6 +100,32 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
         default: false
         }
     }
+    
+    public var activityRequirement: ActivityRequirement? {
+        switch self {
+        case .residential: return .powerAndAdjacent(to: .road)
+        case .commercial: return .powerAndAdjacentPopulated(.residential)
+        case .industrial: return .powerOnly
+        case .trainStation: return .powerAndAdjacent(to: .rail)
+        case .fireStation, .hotel, .school, .postOffice, .hospital: return .powerAndAdjacent(
+            to: .road)
+        default: return nil
+        }
+    }
+    
+    public var taxModel: TaxModel {
+        switch self {
+            case .residential: return .perResident(numerator: 1, denominator: 1)
+            case .commercial: return .perResident(numerator: 2, denominator: 1)
+            case .industrial: return .perResident(numerator: 3, denominator: 2)
+            case .hotel: return .perResident(numerator: 2, denominator: 1)
+            case .trainStation: return .flat(City.trainStationTaxRevenue)
+            case .school: return .flat(City.schoolTaxRevenue)
+            case .postOffice: return .flat(City.postOfficeTaxRevenue)
+        case .hospital, .fireStation: return .flat(City.emsTaxRevenue)
+            case .empty, .road, .powerPlant, .park, .rail, .fire, .rubble: return .none
+        }
+    }
 }
 
 public struct Tile: Sendable {

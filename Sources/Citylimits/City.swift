@@ -1,29 +1,41 @@
 import Foundation
 
-protocol Buildable {
+public protocol Buildable {
     mutating func build(at point: Point, type: TileType) -> Bool
 }
 
-protocol Bulldozable {
+public protocol Bulldozable {
     mutating func bulldoze(at point: Point) -> Bool
 }
 
-protocol Resettable {
+public protocol Resettable {
     mutating func reset()
 }
 
-protocol Taxable {
+public protocol Taxable {
     var treasury: Int { get set }
     func collectTaxes() -> Int
 }
 
-protocol Updatable {
+public protocol Updatable {
     mutating func update(dt: DeltaTime)
+}
+
+public enum TaxModel {
+    case perResident(numerator: Int, denominator: Int)
+    case flat(Int)
+    case none
 }
 
 public struct City: Updatable, Resettable, Buildable, Bulldozable {
    
     let bulldozeCost = 10
+    
+    public static let trainStationTaxRevenue = 50
+    public static let schoolTaxRevenue = 30
+    public static let postOfficeTaxRevenue = 20
+    public static let emsTaxRevenue = 60
+    
     let randomDisasterChance = 0.02
     let trainStationTaxRevenue = 50
     
@@ -68,7 +80,7 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
         set { storedTreasury = min(max(newValue, minTreasury), maxTreasury) }
     }
     
-    mutating func update(dt: DeltaTime) {
+    mutating public func update(dt: DeltaTime) {
         accumulatedTime += dt
         let tickInterval: DeltaTime = 1.0
         
@@ -78,7 +90,7 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
         }
     }
     
-    mutating func reset() {
+    mutating public func reset() {
         // TODO: clear map and any disaster
         treasurey = startingFunds
         population = 0
@@ -86,7 +98,7 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
         maintenanceLastTick = 0
     }
     
-    mutating func build(at point: Point, type: TileType) -> Bool {
+    mutating public func build(at point: Point, type: TileType) -> Bool {
         // TODO: map.valid() and map[point].type
         guard treasurey >= type.buildCost else {
             return false
@@ -99,7 +111,7 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
        return true
     }
     
-    mutating func bulldoze(at point: Point) -> Bool {
+    mutating public func bulldoze(at point: Point) -> Bool {
         guard treasurey >= bulldozeCost else {
             return false
         }

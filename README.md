@@ -32,6 +32,11 @@ Or in Xcode: File -> Add Package Dependencies, then paste the repo URL.
 
 
 #### 🚀 Usage
+
+```swift
+let city = City(width: 20, height: 20)
+```
+
 -->
 
 ## ✅ Supported Versions

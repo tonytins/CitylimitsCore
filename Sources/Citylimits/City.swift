@@ -21,14 +21,14 @@ protocol Updatable {
     mutating func update(dt: DeltaTime)
 }
 
-public struct City: Updatable, Resettable {
+public struct City: Updatable, Resettable, Buildable, Bulldozable {
    
-    public static let bulldozeCost = 10
-    public static let randomDisasterChance = 0.02
-    public static let trainStationTaxRevenue = 50
+    let bulldozeCost = 10
+    let randomDisasterChance = 0.02
+    let trainStationTaxRevenue = 50
     
-    public static let minTreasury = Int.min / 2
-    public static let maxTreasury = Int.max / 2
+    let minTreasury = Int.min / 2
+    let maxTreasury = Int.max / 2
     
     public var map: Map
     
@@ -48,7 +48,7 @@ public struct City: Updatable, Resettable {
         width: Int,
         height: Int,
         storedTreasury: Int,
-        visualGlyphsEnabled: Bool,
+        visualGlyphsEnabled: Bool = false,
         startingFunds: Int = 10_000,
         rng: any RandomNumberGenerator = SystemRandomNumberGenerator()
     ) {
@@ -65,7 +65,7 @@ public struct City: Updatable, Resettable {
     
     public var treasurey: Int {
         get { storedTreasury }
-        set { storedTreasury = min(max(newValue, City.minTreasury), City.maxTreasury) }
+        set { storedTreasury = min(max(newValue, minTreasury), maxTreasury) }
     }
     
     mutating func update(dt: DeltaTime) {
@@ -84,6 +84,28 @@ public struct City: Updatable, Resettable {
         population = 0
         taxIncomeLastTick = 0
         maintenanceLastTick = 0
+    }
+    
+    mutating func build(at point: Point, type: TileType) -> Bool {
+        // TODO: map.valid() and map[point].type
+        guard treasurey >= type.buildCost else {
+            return false
+        }
+        
+        treasurey -= type.buildCost
+        var tile = Tile(type: type)
+        tile.population = Int
+            .random(in: type.startingPopulationRange, using: &rng)
+       return true
+    }
+    
+    mutating func bulldoze(at point: Point) -> Bool {
+        guard treasurey >= bulldozeCost else {
+            return false
+        }
+        
+        treasurey -= bulldozeCost
+        return true
     }
     
 }

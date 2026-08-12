@@ -23,9 +23,13 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
     case park
     case rail
     case trainStation
-    case fireStation
     case fire
     case rubble
+    case fireStation
+    case hotel
+    case school
+    case postOffice
+    case hospital
     
     public var buildCost: Int {
         switch self {
@@ -38,7 +42,23 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
         case .powerPlant: 2_000
         case .fireStation: 400
         case .trainStation: 500
+        case .hotel: 350
+        case .school: 300
+        case .postOffice: 250
+        case .hospital: 600
         case .empty, .fire, .rubble: 0
+        }
+    }
+    
+    public var maintenanceCost: Int {
+        switch self {
+        case .road, .rail: 1
+        case .park: 2
+        case .powerPlant: 50
+        case .trainStation: 10
+        case .hospital: 15
+        case .school, .postOffice: 5
+        default: 0
         }
     }
     
@@ -57,6 +77,10 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
         case .fireStation: return "🚒"
         case .fire: return "🔥"
         case .rubble: return "🧱"
+        case .hotel: return "🏨"
+        case .school: return "🏫"
+        case .postOffice: return "🏤"
+        case .hospital: return "🏥"
         }
     }
     
@@ -65,13 +89,14 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
         case .residential: 0...4
         case .commercial: 0...2
         case .industrial: 0...3
+        case .hotel: 0...2
         default: 0...0
         }
     }
     
     public var isZone: Bool {
         switch self {
-        case .residential, .commercial, .industrial: true
+        case .residential, .commercial, .hotel, .industrial: true
         default: false
         }
     }
@@ -97,16 +122,16 @@ public struct Tile: Sendable {
     let trainStationPowerDemand = 5
     
     public var glyphState: Character {
-        let highPopulation = 20
+        let midPopulation = 20
         switch type {
         case .residential:
             if population <= 0 { return "🏚️" }
-            if population <= highPopulation { return "🏘️" }
-            return "🏠"
+            if population <= midPopulation { return "🏠" }
+            return "🏘️"
         case .commercial:
             if population <= 4 { return "🏪" }
-            if population <= highPopulation { return "🏢" }
-            return "🏬"
+            if population <= midPopulation { return "🏬" }
+            return "🏢"
         default:
             return type.glyph
         }

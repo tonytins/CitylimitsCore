@@ -42,7 +42,7 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
         }
     }
     
-    // Mostly used by the save file
+    /// In their default mode, these are mostly used by the save file.
     public var glyph: Character {
         switch self {
         case .empty: return "."
@@ -92,23 +92,20 @@ public struct Tile: Sendable {
         self.powered = powered
     }
     
-    public static let powerPlanetCapacity = 50
+    let powerPlanetCapacity = 50
     
-    public static let trainStationPowerDemand = 5
+    let trainStationPowerDemand = 5
     
-    public static let glyphLowPopulationThresold = 4
-    public static let glyphHighPopulationThresold = 20
-    
-    /// Provides a indicator of the zone's local population relative to its neighbours.
     public var glyphState: Character {
+        let highPopulation = 20
         switch type {
         case .residential:
-            if population <= Tile.glyphLowPopulationThresold { return "🏚️" }
-            if population <= Tile.glyphHighPopulationThresold { return "🏡" }
+            if population <= 0 { return "🏚️" }
+            if population <= highPopulation { return "🏘️" }
             return "🏠"
         case .commercial:
-            if population <= Tile.glyphLowPopulationThresold { return "🏪" }
-            if population <= Tile.glyphHighPopulationThresold { return "🏢" }
+            if population <= 4 { return "🏪" }
+            if population <= highPopulation { return "🏢" }
             return "🏬"
         default:
             return type.glyph
@@ -121,7 +118,7 @@ public struct Map: Sendable {
     public let height: Int
     public var tiles: [Tile]
     
-    public static let trainStationTrafficOffset = 4
+    let trainStationTrafficOffset = 4
     
     public init(width: Int, height: Int, defaultTile: Tile = Tile()) {
         self.width = width

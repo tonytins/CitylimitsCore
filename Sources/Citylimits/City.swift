@@ -30,7 +30,11 @@ public struct City: Updatable, Resettable {
     public static let minTreasury = Int.min / 2
     public static let maxTreasury = Int.max / 2
     
+    public var map: Map
+    
     var storedTreasury: Int
+    
+    public var visualGlyphsEnabled: Bool
     
     public let startingFunds: Int
     public var population: Int
@@ -39,6 +43,25 @@ public struct City: Updatable, Resettable {
     
     var accumulatedTime: DeltaTime
     var rng: any RandomNumberGenerator
+    
+    public init(
+        width: Int,
+        height: Int,
+        storedTreasury: Int,
+        visualGlyphsEnabled: Bool,
+        startingFunds: Int = 10_000,
+        rng: any RandomNumberGenerator = SystemRandomNumberGenerator()
+    ) {
+        self.map = Map(width: width, height: height)
+        self.storedTreasury = storedTreasury
+        self.visualGlyphsEnabled = visualGlyphsEnabled
+        self.startingFunds = startingFunds
+        self.population = 0
+        self.taxIncomeLastTick = 0
+        self.maintenanceLastTick = 0
+        self.accumulatedTime = 0
+        self.rng = rng
+    }
     
     public var treasurey: Int {
         get { storedTreasury }

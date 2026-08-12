@@ -27,8 +27,6 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
     case fire
     case rubble
     
-    
-    
     public var buildCost: Int {
         switch self {
         case .road: 10
@@ -84,7 +82,11 @@ public struct Tile: Sendable {
     public var population: Int
     public var powered: Bool
     
-    public init(type: TileType, population: Int, powered: Bool = false) {
+    public init(
+        type: TileType = .empty,
+        population: Int = 0,
+        powered: Bool = false
+    ) {
         self.type = type
         self.population = population
         self.powered = powered
@@ -114,16 +116,16 @@ public struct Tile: Sendable {
     }
 }
 
-public struct Map {
+public struct Map: Sendable {
     public let width: Int
     public let height: Int
     public var tiles: [Tile]
     
     public static let trainStationTrafficOffset = 4
     
-    public init(width: Int, height: Int, tiles: [Tile]) {
+    public init(width: Int, height: Int, defaultTile: Tile = Tile()) {
         self.width = width
         self.height = height
-        self.tiles = tiles
+        self.tiles = Array(repeating: defaultTile, count: width * height)
     }
 }

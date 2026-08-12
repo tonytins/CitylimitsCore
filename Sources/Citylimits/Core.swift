@@ -27,26 +27,20 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
     case fire
     case rubble
     
-    public var buildCast: Int {
+    
+    
+    public var buildCost: Int {
         switch self {
-        case .road:
-            10
-        case .park:
-            50
-        case .rail:
-            15
-        case .residential:
-            200
-        case .commercial:
-            300
-        case .industrial:
-            250
-        case .powerPlant:
-            2_000
-        case .trainStation, .fireStation:
-            500
-        default:
-            0
+        case .road: 10
+        case .park: 50
+        case .rail: 15
+        case .residential: 200
+        case .commercial: 300
+        case .industrial: 250
+        case .powerPlant: 2_000
+        case .fireStation: 400
+        case .trainStation: 500
+        case .empty, .fire, .rubble: 0
         }
     }
     
@@ -99,4 +93,37 @@ public struct Tile: Sendable {
     public static let powerPlanetCapacity = 50
     
     public static let trainStationPowerDemand = 5
+    
+    public static let glyphLowPopulationThresold = 4
+    public static let glyphHighPopulationThresold = 20
+    
+    /// Provides a indicator of the zone's local population relative to its neighbours.
+    public var glyphState: Character {
+        switch type {
+        case .residential:
+            if population <= Tile.glyphLowPopulationThresold { return "🏚️" }
+            if population <= Tile.glyphHighPopulationThresold { return "🏡" }
+            return "🏠"
+        case .commercial:
+            if population <= Tile.glyphLowPopulationThresold { return "🏪" }
+            if population <= Tile.glyphHighPopulationThresold { return "🏢" }
+            return "🏬"
+        default:
+            return type.glyph
+        }
+    }
+}
+
+public struct Map {
+    public let width: Int
+    public let height: Int
+    public var tiles: [Tile]
+    
+    public static let trainStationTrafficOffset = 4
+    
+    public init(width: Int, height: Int, tiles: [Tile]) {
+        self.width = width
+        self.height = height
+        self.tiles = tiles
+    }
 }

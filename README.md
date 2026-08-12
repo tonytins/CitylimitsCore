@@ -6,7 +6,7 @@
 
 CityLimitsCore is my port of MicropolisJ to Swift.
 
-This doubles as my own ground up rewrite of my old [CityLimits](https://github.com/tonytins/citylimits) project (and the package itself is internally named that). Aside from my incorporating many features from modern features from newer city building games, it also has my own unique twists.
+This doubles as a personal ground up rewrite of my old [CityLimits](https://github.com/tonytins/citylimits) project (and the package itself is internally named that). Aside from incorporating features from modern features city building games, it also has my own unique twists.
 
 <!--
 ## 📦 Installation

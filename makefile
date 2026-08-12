@@ -14,5 +14,5 @@ docs:
     generate-documentation --target $(package) --output-path ./docs \
     --transform-for-static-hosting --hosting-base-path $(package)
 
-preview:
+serve:
 	swift package --disable-sandbox preview-documentation --target $(package) --port 60339

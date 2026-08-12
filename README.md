@@ -36,4 +36,4 @@ Or in Xcode: File -> Add Package Dependencies, then paste the repo URL.
 
 ## ⚖️ License
 
-Ea, iuvaret tincidunt! possit rationibus corrumpit choro corrumpit amet,.
+I license this project under the MPL-2.0 license - see [LICENSE](LICENSE) for details.

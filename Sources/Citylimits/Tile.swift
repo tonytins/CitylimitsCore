@@ -27,13 +27,14 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
         default: 0...0
         }
     }
-
 }
 
 public struct Tile: Sendable {
     var type: TileType
     var population: Int
     var powered: Bool
+    
+    private let midPopulation = 20
  
     let powerPlanetCapacity = 50
   
@@ -48,6 +49,22 @@ public struct Tile: Sendable {
         self.population = population
         self.powered = powered
     }
+    
+    func residentialStates(population: Int) -> Character {
+        switch population {
+        case 0: return "🏚️"
+        case 1...midPopulation: return "🏠"
+        default: return "🏘️"
+        }
+    }
+    
+    func commercialStates(population: Int) -> Character {
+        switch population {
+        case 0...4: return "🏪"
+        case 5...midPopulation: return "🏬"
+        default: return "🏢"
+        }
+    }
 }
 
 // MARK: - Public APIs
@@ -58,17 +75,12 @@ public extension Tile {
         type == .powerPlant ? powerPlanetCapacity : 0
     }
     
-    var glyphState: Character {
-        let midPopulation = 20
+    var emojiState: Character {
         switch type {
         case .residential:
-            if population <= 0 { return "🏚️" }
-            if population <= midPopulation { return "🏠" }
-            return "🏘️"
+            return residentialStates(population: population)
         case .commercial:
-            if population <= 4 { return "🏪" }
-            if population <= midPopulation { return "🏬" }
-            return "🏢"
+            return commercialStates(population: population)
         default:
             return type.glyph
         }

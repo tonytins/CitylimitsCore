@@ -67,15 +67,14 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
     public init(
         width: Int,
         height: Int,
-        storedTreasury: Int,
+        startingFunds: Int = 10_000,
         visualGlyphsEnabled: Bool = false,
-        startingFunds: GameLevel = .easy,
         rng: any RandomNumberGenerator = SystemRandomNumberGenerator()
     ) {
         self.map = Map(width: width, height: height)
-        self.storedTreasury = storedTreasury
+        self.storedTreasury = startingFunds
         self.visualGlyphsEnabled = visualGlyphsEnabled
-        self.startingFunds = startingFunds.rawValue
+        self.startingFunds = startingFunds
         self.population = 0
         self.taxIncomeLastTick = 0
         self.maintenanceLastTick = 0

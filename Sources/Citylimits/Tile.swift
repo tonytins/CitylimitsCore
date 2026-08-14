@@ -170,6 +170,10 @@ public struct Tile: Sendable {
     
     let powerPlanetCapacity = 50
     
+    public var outputCapacity: Int {
+        type == .powerPlant ? powerPlanetCapacity : 0
+    }
+    
     let trainStationPowerDemand = 5
     
     public var glyphState: Character {

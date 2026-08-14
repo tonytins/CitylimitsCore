@@ -8,6 +8,10 @@ public struct Map: Sendable, ProblemReporting {
     
     let trainStationTrafficOffset = 4
     
+    public var maintenanceCost: Int {
+        tiles.reduce(0) { $0 + $1.type.maintenanceCost }
+    }
+    
     public init(width: Int, height: Int, defaultTile: Tile = Tile()) {
         self.width = width
         self.height = height
@@ -22,6 +26,10 @@ public struct Map: Sendable, ProblemReporting {
             .unemployment: 0,
             .pollution: 0
         ]
+    }
+    
+    public mutating func recomputePower() {
+        var remainingCapacity = tiles.reduce(0) { $0 + $1.outputCapacity }
     }
 }
 

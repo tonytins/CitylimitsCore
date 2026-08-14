@@ -119,10 +119,22 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
             case .commercial: return .perResident(numerator: 2, denominator: 1)
             case .industrial: return .perResident(numerator: 3, denominator: 2)
             case .hotel: return .perResident(numerator: 2, denominator: 1)
-            case .trainStation: return .flat(City.trainStationTaxRevenue)
-            case .school: return .flat(City.schoolTaxRevenue)
-            case .postOffice: return .flat(City.postOfficeTaxRevenue)
-        case .hospital, .fireStation: return .flat(City.emsTaxRevenue)
+        case .trainStation: return .baseWithResidentBonus(
+            base: City.trainStationTaxBase,
+            bonusPerResident: City.trainStationTaxBonus
+        )
+        case .school: return .baseWithResidentBonus(
+            base: City.schoolTaxBase,
+            bonusPerResident: City.schoolTaxBonus
+        )
+        case .postOffice: return .baseWithResidentBonus(
+            base: City.postOfficeTaxBase,
+            bonusPerResident: City.postOfficeTaxBonus
+        )
+        case .hospital, .fireStation: return .baseWithResidentBonus(
+            base: City.emsTaxBase,
+            bonusPerResident: City.emsTaxRonus
+        )
             case .empty, .road, .powerPlant, .park, .rail, .fire, .rubble: return .none
         }
     }

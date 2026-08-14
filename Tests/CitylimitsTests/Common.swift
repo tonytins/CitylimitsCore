@@ -27,7 +27,7 @@ let buildableTypes = TileType.allCases.filter { $0 != .empty }
 /// Seed: 62
 func testCity(height: Int = 4,
               width: Int = 4,
-              funds: Int = 10_000,
+              funds: GameLevel = .easy,
               seed: UInt64 = 62) -> City {
     return City(
         width: height,

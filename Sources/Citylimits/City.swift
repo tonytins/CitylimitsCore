@@ -23,18 +23,26 @@ public protocol Updatable {
 
 public enum TaxModel {
     case perResident(numerator: Int, denominator: Int)
-    case flat(Int)
+    case baseWithResidentBonus(base: Int, bonusPerResident: Int)
     case none
 }
 
+
 public struct City: Updatable, Resettable, Buildable, Bulldozable {
-   
+    
     let bulldozeCost = 10
     
-    public static let trainStationTaxRevenue = 50
-    public static let schoolTaxRevenue = 30
-    public static let postOfficeTaxRevenue = 20
-    public static let emsTaxRevenue = 60
+    // Base
+    public static let trainStationTaxBase = 3
+    public static let schoolTaxBase = 1
+    public static let postOfficeTaxBase = 2
+    public static let emsTaxBase = 3
+    
+    // Bonus
+    public static let trainStationTaxBonus = 4
+    public static let schoolTaxBonus = 3
+    public static let postOfficeTaxBonus = 5
+    public static let emsTaxRonus = 3
     
     let randomDisasterChance = 0.02
     let trainStationTaxRevenue = 50
@@ -61,13 +69,13 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
         height: Int,
         storedTreasury: Int,
         visualGlyphsEnabled: Bool = false,
-        startingFunds: Int = 10_000,
+        startingFunds: GameLevel = .easy,
         rng: any RandomNumberGenerator = SystemRandomNumberGenerator()
     ) {
         self.map = Map(width: width, height: height)
         self.storedTreasury = storedTreasury
         self.visualGlyphsEnabled = visualGlyphsEnabled
-        self.startingFunds = startingFunds
+        self.startingFunds = startingFunds.rawValue
         self.population = 0
         self.taxIncomeLastTick = 0
         self.maintenanceLastTick = 0
@@ -108,7 +116,7 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
         var tile = Tile(type: type)
         tile.population = Int
             .random(in: type.startingPopulationRange, using: &rng)
-       return true
+        return true
     }
     
     mutating public func bulldoze(at point: Point) -> Bool {

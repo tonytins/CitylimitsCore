@@ -55,39 +55,58 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
     var accumulatedTime: DeltaTime
     var rng: any RandomNumberGenerator
     
-    public var map: Map
+    public internal(set) var map: Map
     
-    public var visualGlyphsEnabled: Bool
+    public var emojisEnabled: Bool
     
     public let startingFunds: Int
-    public var population: Int
-    public var taxIncomeLastTick: Int
-    public var maintenanceLastTick: Int
+    public private(set) var population: Int
+    
+    public private(set) var taxIncomeLastCollection: Int
+    public private(set) var maintenanceLastCollection: Int
+    public private(set) var didCollect: Bool
+    
+    public init(
+        width: Int,
+        height: Int,
+        level: GameLevel = .easy,
+        emojisEnabled: Bool = false,
+        rng: any RandomNumberGenerator = SystemRandomNumberGenerator()
+    ) {
+        self.init(
+            width: width,
+            height: height,
+            funds: level.startingFunds,
+            emojisEnabled: emojisEnabled,
+            rng: rng
+        )
+    }
+    
+    public init(
+        width: Int,
+        height: Int,
+        funds: Int,
+        emojisEnabled: Bool = false,
+        rng: any RandomNumberGenerator = SystemRandomNumberGenerator()
+    ) {
+        self.map = Map(width: width, height: height)
+        self.storedTreasury = funds
+        self.emojisEnabled = emojisEnabled
+        self.startingFunds = funds
+        self.population = 0
+        self.taxIncomeLastCollection = 0
+        self.maintenanceLastCollection = 0
+        self.accumulatedTime = 0
+        self.rng = rng
+        self.didCollect = false
+    }
 
 }
 
 // MARK: - Public API
 
 public extension City {
-    
-    init(
-        width: Int,
-        height: Int,
-        startingFunds: Int = 10_000,
-        visualGlyphsEnabled: Bool = false,
-        rng: any RandomNumberGenerator = SystemRandomNumberGenerator()
-    ) {
-        self.map = Map(width: width, height: height)
-        self.storedTreasury = startingFunds
-        self.visualGlyphsEnabled = visualGlyphsEnabled
-        self.startingFunds = startingFunds
-        self.population = 0
-        self.taxIncomeLastTick = 0
-        self.maintenanceLastTick = 0
-        self.accumulatedTime = 0
-        self.rng = rng
-    }
-    
+        
     var treasurey: Int {
         get { storedTreasury }
         set { storedTreasury = min(max(newValue, minTreasury), maxTreasury) }
@@ -107,12 +126,18 @@ public extension City {
         // TODO: clear map and any disaster
         treasurey = startingFunds
         population = 0
-        taxIncomeLastTick = 0
-        maintenanceLastTick = 0
+        taxIncomeLastCollection = 0
+        maintenanceLastCollection = 0
+        didCollect = false
     }
     
     mutating func build(at point: Point, type: TileType) -> Bool {
-        // TODO: map.valid() and map[point].type
+        guard map.valid(point: point) else {
+            return false
+        }
+        guard map[point].type == .empty else {
+            return false
+        }
         guard treasurey >= type.buildCost else {
             return false
         }
@@ -122,6 +147,10 @@ public extension City {
         tile.population = Int
             .random(in: type.startingPopulationRange, using: &rng)
         return true
+    }
+    
+    func isValid(point: Point) -> Bool {
+        map.valid(point: point)
     }
     
     mutating func bulldoze(at point: Point) -> Bool {

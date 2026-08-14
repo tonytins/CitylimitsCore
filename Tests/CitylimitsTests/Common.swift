@@ -7,15 +7,15 @@ let buildableTypes = TileType.allCases.filter { $0 != .empty }
 /// ----------
 /// Width: 4
 /// Height: 4
-/// Funds: 10,000
-/// Seed: 62
+/// Level: easy (20,000)
+/// Seed: 42
 func testCity(height: Int = 4,
               width: Int = 4,
-              funds: Int = 10_000,
-              seed: UInt64 = 62) -> City {
+              level: GameLevel = .easy,
+              seed: UInt64 = 42) -> City {
     return City(
         width: height,
         height: width,
-        startingFunds: funds,
+        level: level,
         rng: SeededGenerator(seed: seed))
 }

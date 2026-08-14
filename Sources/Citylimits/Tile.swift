@@ -1,15 +1,5 @@
 import Foundation
 
-public struct Point: Equatable, Hashable, Sendable {
-    var x: Int
-    var y: Int
-    
-    public init(x: Int, y: Int) {
-        self.x = x
-        self.y = y
-    }
-}
-
 public enum TileType: String, Codable, CaseIterable, Sendable {
     case empty
     case residential

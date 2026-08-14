@@ -27,32 +27,35 @@ public enum TaxModel {
     case none
 }
 
+// Base
+let trainStationTaxBase = 3
+let schoolTaxBase = 1
+let postOfficeTaxBase = 2
+let emsTaxBase = 3
+
+// Bonus
+let trainStationTaxBonus = 4
+let schoolTaxBonus = 3
+let postOfficeTaxBonus = 5
+let emsTaxRonus = 3
+
 
 public struct City: Updatable, Resettable, Buildable, Bulldozable {
     
     let bulldozeCost = 10
-    
-    // Base
-    public static let trainStationTaxBase = 3
-    public static let schoolTaxBase = 1
-    public static let postOfficeTaxBase = 2
-    public static let emsTaxBase = 3
-    
-    // Bonus
-    public static let trainStationTaxBonus = 4
-    public static let schoolTaxBonus = 3
-    public static let postOfficeTaxBonus = 5
-    public static let emsTaxRonus = 3
-    
+        
     let randomDisasterChance = 0.02
     let trainStationTaxRevenue = 50
     
     let minTreasury = Int.min / 2
     let maxTreasury = Int.max / 2
+        
+    var storedTreasury: Int
+    
+    var accumulatedTime: DeltaTime
+    var rng: any RandomNumberGenerator
     
     public var map: Map
-    
-    var storedTreasury: Int
     
     public var visualGlyphsEnabled: Bool
     
@@ -60,11 +63,14 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
     public var population: Int
     public var taxIncomeLastTick: Int
     public var maintenanceLastTick: Int
+
+}
+
+// MARK: - Public API
+
+public extension City {
     
-    var accumulatedTime: DeltaTime
-    var rng: any RandomNumberGenerator
-    
-    public init(
+    init(
         width: Int,
         height: Int,
         startingFunds: Int = 10_000,
@@ -82,12 +88,12 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
         self.rng = rng
     }
     
-    public var treasurey: Int {
+    var treasurey: Int {
         get { storedTreasury }
         set { storedTreasury = min(max(newValue, minTreasury), maxTreasury) }
     }
     
-    mutating public func update(dt: DeltaTime) {
+    mutating func update(dt: DeltaTime) {
         accumulatedTime += dt
         let tickInterval: DeltaTime = 1.0
         
@@ -97,7 +103,7 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
         }
     }
     
-    mutating public func reset() {
+    mutating func reset() {
         // TODO: clear map and any disaster
         treasurey = startingFunds
         population = 0
@@ -105,7 +111,7 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
         maintenanceLastTick = 0
     }
     
-    mutating public func build(at point: Point, type: TileType) -> Bool {
+    mutating func build(at point: Point, type: TileType) -> Bool {
         // TODO: map.valid() and map[point].type
         guard treasurey >= type.buildCost else {
             return false
@@ -118,7 +124,7 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
         return true
     }
     
-    mutating public func bulldoze(at point: Point) -> Bool {
+    mutating func bulldoze(at point: Point) -> Bool {
         guard treasurey >= bulldozeCost else {
             return false
         }
@@ -126,5 +132,4 @@ public struct City: Updatable, Resettable, Buildable, Bulldozable {
         treasurey -= bulldozeCost
         return true
     }
-    
 }

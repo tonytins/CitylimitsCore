@@ -1,5 +1,7 @@
 import Foundation
 
+public typealias DeltaTime = TimeInterval
+
 public enum Speed: Sendable, CaseIterable {
     case paused
     case slow

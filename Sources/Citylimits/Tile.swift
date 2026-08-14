@@ -1,17 +1,14 @@
 import Foundation
 
-public typealias DeltaTime = TimeInterval
-
 public struct Point: Equatable, Hashable, Sendable {
-    public var x: Int
-    public var y: Int
+    var x: Int
+    var y: Int
     
     public init(x: Int, y: Int) {
         self.x = x
         self.y = y
     }
 }
-
 
 public enum TileType: String, Codable, CaseIterable, Sendable {
     case empty
@@ -31,7 +28,67 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
     case postOffice
     case hospital
     
-    public var buildCost: Int {
+    var startingPopulationRange: ClosedRange<Int> {
+        switch self {
+        case .residential: 0...4
+        case .commercial: 0...2
+        case .industrial: 0...3
+        case .hotel: 0...2
+        default: 0...0
+        }
+    }
+
+}
+
+public struct Tile: Sendable {
+    var type: TileType
+    var population: Int
+    var powered: Bool
+ 
+    let powerPlanetCapacity = 50
+  
+    let trainStationPowerDemand = 5
+    
+    public init(
+        type: TileType = .empty,
+        population: Int = 0,
+        powered: Bool = false
+    ) {
+        self.type = type
+        self.population = population
+        self.powered = powered
+    }
+}
+
+// MARK: - Public APIs
+
+public extension Tile {
+        
+    var outputCapacity: Int {
+        type == .powerPlant ? powerPlanetCapacity : 0
+    }
+    
+    var glyphState: Character {
+        let midPopulation = 20
+        switch type {
+        case .residential:
+            if population <= 0 { return "🏚️" }
+            if population <= midPopulation { return "🏠" }
+            return "🏘️"
+        case .commercial:
+            if population <= 4 { return "🏪" }
+            if population <= midPopulation { return "🏬" }
+            return "🏢"
+        default:
+            return type.glyph
+        }
+    }
+}
+
+
+public extension TileType {
+    
+    var buildCost: Int {
         switch self {
         case .road: 10
         case .park: 50
@@ -50,7 +107,7 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
         }
     }
     
-    public var maintenanceCost: Int {
+    var maintenanceCost: Int {
         switch self {
         case .road, .rail: 1
         case .park: 2
@@ -63,7 +120,7 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
     }
     
     /// In their default mode, these are mostly used by the save file.
-    public var glyph: Character {
+    var glyph: Character {
         switch self {
         case .empty: return "."
         case .residential: return "🏠"
@@ -84,24 +141,14 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
         }
     }
     
-    var startingPopulationRange: ClosedRange<Int> {
-        switch self {
-        case .residential: 0...4
-        case .commercial: 0...2
-        case .industrial: 0...3
-        case .hotel: 0...2
-        default: 0...0
-        }
-    }
-    
-    public var isZone: Bool {
+    var isZone: Bool {
         switch self {
         case .residential, .commercial, .hotel, .industrial: true
         default: false
         }
     }
     
-    public var activityRequirement: ActivityRequirement? {
+    var activityRequirement: ActivityRequirement? {
         switch self {
         case .residential: return .powerAndAdjacent(to: .road)
         case .commercial: return .powerAndAdjacentPopulated(.residential)
@@ -113,82 +160,42 @@ public enum TileType: String, Codable, CaseIterable, Sendable {
         }
     }
     
-    public var taxModel: TaxModel {
+    var taxModel: TaxModel {
         switch self {
-            case .residential: return .perResident(numerator: 1, denominator: 1)
-            case .commercial: return .perResident(numerator: 2, denominator: 1)
-            case .industrial: return .perResident(numerator: 3, denominator: 2)
-            case .hotel: return .perResident(numerator: 2, denominator: 1)
+        case .residential: return .perResident(numerator: 1, denominator: 1)
+        case .commercial: return .perResident(numerator: 2, denominator: 1)
+        case .industrial: return .perResident(numerator: 3, denominator: 2)
+        case .hotel: return .perResident(numerator: 2, denominator: 1)
         case .trainStation: return .baseWithResidentBonus(
-            base: City.trainStationTaxBase,
-            bonusPerResident: City.trainStationTaxBonus
+            base: trainStationTaxBase,
+            bonusPerResident: trainStationTaxBonus
         )
         case .school: return .baseWithResidentBonus(
-            base: City.schoolTaxBase,
-            bonusPerResident: City.schoolTaxBonus
+            base: schoolTaxBase,
+            bonusPerResident: schoolTaxBonus
         )
         case .postOffice: return .baseWithResidentBonus(
-            base: City.postOfficeTaxBase,
-            bonusPerResident: City.postOfficeTaxBonus
+            base: postOfficeTaxBase,
+            bonusPerResident: postOfficeTaxBonus
         )
         case .hospital, .fireStation: return .baseWithResidentBonus(
-            base: City.emsTaxBase,
-            bonusPerResident: City.emsTaxRonus
+            base: emsTaxBase,
+            bonusPerResident: emsTaxRonus
         )
-            case .empty, .road, .powerPlant, .park, .rail, .fire, .rubble: return .none
+        case .empty, .road, .powerPlant, .park, .rail, .fire, .rubble: return .none
         }
     }
     
-    public var boostsNearbyGrowth: Bool {
+    var boostsNearbyGrowth: Bool {
         switch self {
         case .trainStation, .school, .postOffice, .hospital, .hotel: true
         default: false
         }
     }
     
-    public init?(glyph: Character) {
+    init?(glyph: Character) {
         let normalized = Character(glyph.uppercased())
         guard let match = TileType.allCases.first(where: { $0.glyph == normalized }) else { return nil }
         self = match
-    }
-}
-
-public struct Tile: Sendable {
-    public var type: TileType
-    public var population: Int
-    public var powered: Bool
-    
-    public init(
-        type: TileType = .empty,
-        population: Int = 0,
-        powered: Bool = false
-    ) {
-        self.type = type
-        self.population = population
-        self.powered = powered
-    }
-    
-    let powerPlanetCapacity = 50
-    
-    public var outputCapacity: Int {
-        type == .powerPlant ? powerPlanetCapacity : 0
-    }
-    
-    let trainStationPowerDemand = 5
-    
-    public var glyphState: Character {
-        let midPopulation = 20
-        switch type {
-        case .residential:
-            if population <= 0 { return "🏚️" }
-            if population <= midPopulation { return "🏠" }
-            return "🏘️"
-        case .commercial:
-            if population <= 4 { return "🏪" }
-            if population <= midPopulation { return "🏬" }
-            return "🏢"
-        default:
-            return type.glyph
-        }
     }
 }
